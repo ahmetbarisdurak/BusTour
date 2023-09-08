@@ -80,7 +80,7 @@ std::ostream& operator<<(std::ostream& os, Time& time) {
 
 void readInput(StaticVector<Time, TIME_COUNT>& busTimes) {
 
-    std::string input[] = { "10.09", "10.10", "10.10", "10.12", "10.12", "10.14", "10.15", "10.15", "10.16", "10.18", "10.18", "10.20", "10.20", "-1"};
+    std::string input[] = { "10.00", "10.01", "10.02", "10.03", "10.04", "10.05", "10.06", "10.07", "10.08", "10.09", "10.10", "-1"};
 
     int i = 0;
     while (input[i].compare("-1") != 0 ) {
@@ -114,12 +114,11 @@ int main() {
 
         for (int j = i + 1; j < busTimes.GetSize(); ++j) {
 
-            if (visited[j]){ // Node is already visited 
+            if (visited[j]) // Node is already visited 
                 continue;
-            }
-
 
             int busPeriod = busTimes[j] - busTimes[i]; // Found a value for bus period to try.
+            
             if(busPeriod == 0)
                 continue;
 
@@ -171,47 +170,3 @@ int main() {
 
     return 0;
 }
-
-
-
-/*
-int[] times;
-bool[] visited = { false };
-
-for (int i = 0; i < times.size(); ++i) {
-    if (visited[i]) continue;
-
-    int temp_times[] = subtract_element(times, times[i]);
-    int maxlength = 0, period;
-    int maxpattern[];
-    //Try all possible periods for i'th item
-    for (int j = i + 1; j < times.size(); ++j) {
-        if (visited[j]) continue;
-        int pred_period = temp_times[j] //Predicted period is temp_times[j]
-            int pattern[];
-        int length = 1;
-
-        //Try to find a recurring pattern with period = temp_times[j]
-        for (int k = j + 1; j < times.size(); ++k) {
-            if (visited[k]) continue;
-            int expected_time = (length + 1) * pred_period;
-
-            //There is no possible value for rest of the array
-            if (expected_time < temp_times[k]) break;
-
-            else if (expected_time == temp_times[k]) {
-                length++;
-                pattern.push_back(k);
-            }
-        }
-
-        if (length > maxlength) {
-            maxlength = length;
-            maxpattern = pattern;
-            period = pred_period;
-        }
-    }
-
-    visited[elements of the maxpattern] = true;
-}
-*/
