@@ -93,6 +93,42 @@ void readInput(StaticVector<Time, TIME_COUNT>& busTimes) {
     }
 }
 
+Time CreateBusStartTime(Time startTime, Time endTime) {
+
+    bool checkTime = false;
+    int startHour, startMinute;
+    std::cout << "Creating bus start time" << std::end;
+
+    while (!checkTime) {
+        
+        startHour = rand() % 24;
+        startMinute = rand() % 60;
+
+        Time busStartTime(startHour, startMinute);
+
+        if (!(busStartTime < startTime) && busStartTime < endTime)
+            return busStartTime;
+
+    }
+    
+    return startTime;
+}
+
+void CreateBusPeriod(StaticVector<Time, TIME_COUNT>& busTimes, int busNumber, Time startTime, Time endTime) {
+
+
+    for (int i = 0; i < busNumber; ++i) {
+        int busPeriod = rand() % 30;
+
+        Time busStartTime = CreateBusStartTime(startTime, endTime);
+        
+        std::cout << busStartTime << std::endl;
+
+
+    }
+
+
+}
 
 
 
@@ -101,6 +137,15 @@ int main() {
     StaticVector<Time, TIME_COUNT> busTimes;
     bool visited[TIME_COUNT] = { false };
 
+
+    srand(time(NULL));
+
+    Time startTime(10, 0);
+    Time endTime(11, 0);
+
+    CreateBusPeriod(busTimes, 15, startTime, endTime);
+
+    /*
     readInput(busTimes);
 
     for (int i = 0; i < busTimes.GetSize(); ++i) {
@@ -167,6 +212,6 @@ int main() {
         if(maximumPattern.GetSize() > 0)
             std::cout << "Found pattern is " << maximumPattern << std::endl;
     }
-
+    */
     return 0;
 }
