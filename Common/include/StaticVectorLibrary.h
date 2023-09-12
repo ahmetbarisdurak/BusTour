@@ -162,7 +162,7 @@ void StaticVector<T, N>::Sort(bool (*comparisonFunction)(const T&, const T&)) {
 
 	int i, j;
 	T key;
-	for (i = 1; i < N; i++) {
+	for (i = 1; i < size; i++) {
 		key = staticVectorData[i];
 		j = i - 1;
 
