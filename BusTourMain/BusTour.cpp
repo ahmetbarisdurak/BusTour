@@ -312,6 +312,72 @@ void extract_staggering_groups(Vector<Vector<int, MAX_PULSE>, MAX_GROUP>& groups
 
 */
 
+
+void FindAlternatingPeriod(StaticVector<Time, TIME_COUNT> busTimes, StaticVector<Time, TIME_COUNT> maximumPattern) {
+    std::cout << "\n-------------------------------------------------" << std::endl;
+    std::cout << "Entering the gate with period: " << std::endl;
+    std::cout << "Current maximum pattern is " << maximumPattern;
+
+    int period1, period2;
+    int periods[20][2];
+    int alternatingPeriodCount = 0;
+    std::string count[20] = { " " };
+
+    for (int s = 0; s < maximumPattern.GetSize() - 1; s++) {
+        for (int start = 0; start < busTimes.GetSize(); ++start) {
+
+            if (busTimes[start] < maximumPattern[s] || busTimes[start] == maximumPattern[s]) // we should traverse between the values of maximum pattern
+                continue;
+
+            else if (maximumPattern[s + 1] < busTimes[start] || busTimes[start] == maximumPattern[s + 1]) // we should traverse between the values of maximum pattern
+                break;
+
+            period1 = busTimes[start] - maximumPattern[s];
+            period2 = maximumPattern[s + 1] - busTimes[start];
+
+            std::cout << "Period 1 is: " << period1 << " Period 2 is: " << period2 << std::endl;
+
+            bool found = false;
+
+            for (int index = 0; index < alternatingPeriodCount; ++index) {
+                if (periods[index][0] == period1 && periods[index][1] == period2) {
+                    std::cout << "this one already exists " << period1 << "   " << period2 << std::endl;
+                    count[index] += "T";
+                    found = true;
+                }
+            }
+
+            if (!found) {
+
+                std::cout << "this one doesn't exists adding to periods " << period1 << "   " << period2 << std::endl;
+                periods[alternatingPeriodCount][0] = period1;
+                periods[alternatingPeriodCount][1] = period2;
+                count[alternatingPeriodCount] = 1;
+                alternatingPeriodCount++;
+            }
+        }
+    }
+
+    std::cout << "Finding the most occured pattern in the alternatif patterns" << std::endl;
+    int max = 0;
+    int maxIndex = -1;
+    std::cout << "Alternatif period count is " << alternatingPeriodCount << std::endl;
+
+    for (int s = 0; s < alternatingPeriodCount; ++s) {
+
+        if (count[s] > max) {
+            max = count[s];
+            maxIndex = s;
+        }
+
+    }
+
+    std::cout << "Maximum one is " << periods[maxIndex][0] << "   " << periods[maxIndex][1] << std::endl;
+}
+
+
+
+
 void ExtractAlternatingPeriods(StaticVector<Time, TIME_COUNT> busTimes, bool visited[TIME_COUNT]) {
 
     for (int i = 0; i < busTimes.GetSize(); ++i) {
@@ -357,66 +423,9 @@ void ExtractAlternatingPeriods(StaticVector<Time, TIME_COUNT> busTimes, bool vis
             if (periodCount >= maximumPeriodCount) {
                 maximumPeriodCount = periodCount;
                 maximumPattern = foundPattern;
-            
-                std::cout << "\n-------------------------------------------------" << std::endl;
-                std::cout << "Entering the gate with period: " << busPeriod << std::endl;
-                std::cout << "Current maximum pattern is " << maximumPattern;
                 
-                int period1, period2;
-                int periods[20][2];
-                int alternatingPeriodCount = 0;
-                int count[20] = { 0 };
-
-                for (int s = 0; s < maximumPattern.GetSize() - 1; s++) {
-                    for (int start = 0; start < busTimes.GetSize(); ++start) {
-
-                        if (busTimes[start] < maximumPattern[s] || busTimes[start] == maximumPattern[s])
-                            continue;
-
-                        else if (maximumPattern[s + 1] < busTimes[start] || busTimes[start] == maximumPattern[s + 1])
-                            break;
-
-                        period1 = busTimes[start] - maximumPattern[s];
-                        period2 = maximumPattern[s + 1] - busTimes[start];
-
-                        std::cout << "Period 1 is: " << period1 << " Period 2 is: " << period2 << std::endl;
-
-                        bool found = false;
-
-                        for (int index = 0; index < alternatingPeriodCount; ++index) {
-                            if (periods[index][0] == period1 && periods[index][1] == period2) {
-                                std::cout << "this one already exists " << period1 << "   " << period2 << std::endl;
-                                count[index]++;
-                                found = true;
-                            }
-                        }
-
-                        if (!found) {
-
-                            std::cout << "this one doesn't exists adding to periods " << period1 << "   " << period2 << std::endl;
-                            periods[alternatingPeriodCount][0] = period1;
-                            periods[alternatingPeriodCount][1] = period2;
-                            count[alternatingPeriodCount] = 1;
-                            alternatingPeriodCount++;
-                        }
-                    }
-                }
-
-                std::cout << "Finding the most occured pattern in the alternatif patterns" << std::endl;
-                int max = 0;
-                int maxIndex = -1;
-                std::cout << "Alternatif period count is " << alternatingPeriodCount << std::endl;
-
-                for (int s = 0; s < alternatingPeriodCount; ++s) {
-
-                    if (count[s] > max) {
-                        max = count[s];
-                        maxIndex = s;
-                    }
-
-                }
-
-                std::cout << "Maximum one is " << periods[maxIndex][0] << "   " << periods[maxIndex][1] << std::endl;
+                FindAlternatingPeriod(busTimes, maximumPattern);
+                
             
             }
         }
@@ -451,9 +460,6 @@ void ExtractAlternatingPeriods(StaticVector<Time, TIME_COUNT> busTimes, bool vis
 
 
 }
-
-
-
 
 
 
