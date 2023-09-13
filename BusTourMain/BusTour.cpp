@@ -132,13 +132,9 @@ void CreateStableBusPeriod(StaticVector<Time, TIME_COUNT>& busTimes, int busNumb
             busStartTime = busStartTime + busPeriod;
         }
 
-       
         std::cout << "Bus period is " << busPeriod << std::endl;
     
-        //std::cout << busTimes;
-        //std::cout << "\n--------------------------------" << std::endl;
         i++;
-
     }
 }
 
@@ -186,23 +182,16 @@ void CreateAlternatingBusPeriod(StaticVector<Time, TIME_COUNT>& busTimes, int bu
     }
 }
 
+// Creating bus period with random number
 void CreateBusPeriod(StaticVector<Time, TIME_COUNT>& busTimes, int busNumber, Time startTime, Time endTime) {
-    int i = 0;
-    while (i < busNumber) {
-
+    for(int i = 0; i < busNumber; ++i) {
         float temp = (float)rand() / RAND_MAX;
-
         
         if (temp > 0.5)
             CreateStableBusPeriod(busTimes, 1, startTime, endTime);
         else
-            CreateAlternatingBusPeriod(busTimes, 1, startTime, endTime);
-        
-        i++;
+            CreateAlternatingBusPeriod(busTimes, 1, startTime, endTime);    
     }
-
-
-
 }
 
 bool CompareTime(const Time& time1, const Time& time2) {
