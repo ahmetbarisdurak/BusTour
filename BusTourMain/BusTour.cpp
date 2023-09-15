@@ -7,6 +7,7 @@
 
 #define TIME_COUNT 60
 
+// Time class for storing the elements of bus times
 class Time {
 public:
     int hour;
@@ -20,6 +21,7 @@ public:
         hour = (input[0] - '0') * 10 + (input[1] - '0');
         minute = (input[3] - '0') * 10 + (input[4] - '0') ;
     }
+    // - operator takes Time object and returns minutes as integer
     int operator-(const Time& other) const {
         int thisMinutes = hour * 60 + minute;
         int otherMinutes = other.hour * 60 + other.minute;
@@ -32,7 +34,7 @@ public:
 
         return diffMinutes;
     }
-
+    // + operator takes integer minutes and returns the time stamp
     Time operator+(int minutes) const {
         int total_minutes = hour * 60 + minute;
         total_minutes += minutes;
@@ -73,11 +75,13 @@ public:
 
 };
 
+// Overloading << operator
 std::ostream& operator<<(std::ostream& os, Time& time) {
     os << "(" << time.GetHour() << ":" << time.GetMinutes() << ") ";
     return os;
 }
 
+// Used for test purposes, inputs are given in the input array
 void readInput(StaticVector<Time, TIME_COUNT>& busTimes) {
 
     std::string input[] = { "10.05", "10.29", "10.29", "10.36", "10.40", "10.41", "10.48", "10.53", "10.53", "10.57", "-1" };
@@ -92,11 +96,11 @@ void readInput(StaticVector<Time, TIME_COUNT>& busTimes) {
     }
 }
 
+// Randomly creates bus start time in the range of startTime and endTime
 Time CreateBusStartTime(Time startTime, Time endTime) {
 
     bool checkTime = false;
     int startHour, startMinute;
-    //std::cout << "Creating bus start time" << std::endl;
 
     while (!checkTime) {
         
@@ -113,31 +117,30 @@ Time CreateBusStartTime(Time startTime, Time endTime) {
     return startTime;
 }
 
+// Creates bus times with stable period in the range of start time and endtime
 void CreateStableBusPeriod(StaticVector<Time, TIME_COUNT>& busTimes, int busNumber, Time startTime, Time endTime) {
 
     int i = 0;
-    while(i < busNumber) { // kaldırılabilir
+    while(i < busNumber) {
         int busPeriod = rand() % 30;
 
         Time busStartTime = CreateBusStartTime(startTime, endTime);
-        
-        std::cout << "Bus start time is " << busStartTime << std::endl;
 
         if (endTime < busStartTime + busPeriod)
             continue;
 
         while (busStartTime == endTime || busStartTime < endTime) {
             busTimes.PushBack(busStartTime);
-            std::cout << "Added" << busStartTime << std::endl;
             busStartTime = busStartTime + busPeriod;
         }
 
-        std::cout << "Bus period is " << busPeriod << std::endl;
     
         i++;
     }
 }
 
+// Creates bus times with alternating period in the range of startTime and endTime
+// If there isn't sufficent data of time it creates another time vector
 void CreateAlternatingBusPeriod(StaticVector<Time, TIME_COUNT>& busTimes, int busNumber, Time startTime, Time endTime) {
 
     StaticVector<Time, TIME_COUNT> tempTimes;
@@ -154,8 +157,6 @@ void CreateAlternatingBusPeriod(StaticVector<Time, TIME_COUNT>& busTimes, int bu
             continue;
 
         Time busStartTime = CreateBusStartTime(startTime, endTime);
-
-        std::cout << "Bus start time is " << busStartTime << " ";
 
         if (endTime < busStartTime + busPeriod1)
             continue;
@@ -174,15 +175,14 @@ void CreateAlternatingBusPeriod(StaticVector<Time, TIME_COUNT>& busTimes, int bu
 
     }
 
-    std::cout << "Bus period is " << busPeriod1 << " and " << busPeriod2 << std::endl;
     for (int i = 0; i < tempTimes.GetSize(); ++i) {
         busTimes.PushBack(tempTimes[i]);
-        std::cout << "Added" << tempTimes[i] << std::endl;
 
     }
 }
 
-// Creating bus period with random number
+// Creating different types of bus periods using randomness
+// busNumber and the range is given
 void CreateBusPeriod(StaticVector<Time, TIME_COUNT>& busTimes, int busNumber, Time startTime, Time endTime) {
     for(int i = 0; i < busNumber; ++i) {
         float temp = (float)rand() / RAND_MAX;
@@ -194,23 +194,22 @@ void CreateBusPeriod(StaticVector<Time, TIME_COUNT>& busTimes, int busNumber, Ti
     }
 }
 
+// Compares two times
 bool CompareTime(const Time& time1, const Time& time2) {
     return !(time1 < time2);
 }
 
 
-
-void FindAlternatingPeriod(StaticVector<Time, TIME_COUNT> busTimes, StaticVector<Time, TIME_COUNT> maximumPattern, StaticVector<Time, TIME_COUNT>& foundPattern) {
-    //std::cout << "\n-------------------------------------------------" << std::endl;
-    //std::cout << "Entering the gate with period: " << std::endl;
-    //std::cout << "Current maximum pattern is " << maximumPattern;
-
+// Finding Alternating Period starting from the first time stamp and tries to find a recurring stable period
+// After find a stable period this function tries to divide the stable period into alternating periods
+// Then checks for alternating periods are applicable to busTimes vector or not
+void FindAlternatingPeriod(StaticVector<Time, TIME_COUNT>& busTimes, StaticVector<Time, TIME_COUNT> maximumPattern, StaticVector<Time, TIME_COUNT>& foundPattern) {
     int period1, period2;
     int periods[20][2] = { -1 };
     bool visited[20][20] = { false };
     int alternatingPeriodCount = 0;
 
-    if (maximumPattern.GetSize() <= 2) // This can't create a alternating pattern
+    if (maximumPattern.GetSize() <= 2) // If maximumPattern size is lower equal than 2 it can't create an alternating pattern
     {
         //std::cout << "Size is low so can't take it " << std::endl;
         return;
@@ -227,8 +226,6 @@ void FindAlternatingPeriod(StaticVector<Time, TIME_COUNT> busTimes, StaticVector
             period1 = busTimes[start] - maximumPattern[s];
             period2 = maximumPattern[s + 1] - busTimes[start];
 
-            //std::cout << "Period 1 is: " << period1 << " Period 2 is: " << period2 << std::endl;
-
             if (period1 == period2)
                 continue;
 
@@ -236,15 +233,12 @@ void FindAlternatingPeriod(StaticVector<Time, TIME_COUNT> busTimes, StaticVector
 
             for (int index = 0; index < alternatingPeriodCount; ++index) {
                 if (periods[index][0] == period1 && periods[index][1] == period2) {
-                    //std::cout << "this one already exists " << period1 << "   " << period2 << std::endl;
                     visited[index][s] = true;
                     found = true;
                 }
             }
 
             if (!found) {
-
-                //std::cout << "this one doesn't exists adding to periods " << period1 << "   " << period2 << std::endl;
                 periods[alternatingPeriodCount][0] = period1;
                 periods[alternatingPeriodCount][1] = period2;
                 visited[alternatingPeriodCount][s] = true;
@@ -253,8 +247,6 @@ void FindAlternatingPeriod(StaticVector<Time, TIME_COUNT> busTimes, StaticVector
         }
     }
 
-    //std::cout << "Finding the most occured pattern in the alternatif patterns" << std::endl;
-    //std::cout << "Alternatif period count is " << alternatingPeriodCount << std::endl;
     int foundMaxIndex = 0;
 
     for (int s = 0; s < alternatingPeriodCount; ++s) {
@@ -262,7 +254,6 @@ void FindAlternatingPeriod(StaticVector<Time, TIME_COUNT> busTimes, StaticVector
 
         for (int ss = 0; ss < maximumPattern.GetSize() - 1; ++ss) {
             if (!visited[s][ss]) {
-                //std::cout << periods[s][0] << " and " << periods[s][1] << " not true " << std::endl;
                 foundMaxIndex = -1;
                 break;
             }
@@ -277,8 +268,6 @@ void FindAlternatingPeriod(StaticVector<Time, TIME_COUNT> busTimes, StaticVector
    
     if (foundMaxIndex == -1)
         return;
-
-    //std::cout << "Maximum one is " << periods[foundMaxIndex][0] << "   " << periods[foundMaxIndex][1] << std::endl;
 
     period1 = periods[foundMaxIndex][0];
     period2 = periods[foundMaxIndex][1];
@@ -298,7 +287,8 @@ void FindAlternatingPeriod(StaticVector<Time, TIME_COUNT> busTimes, StaticVector
 
 }
 
-void ExtractAlternatingPeriods(StaticVector<Time, TIME_COUNT> busTimes, bool visited[TIME_COUNT]) {
+// Extracts the alternating periods from the busTimes vector
+void ExtractAlternatingPeriods(StaticVector<Time, TIME_COUNT>& busTimes, bool visited[TIME_COUNT]) {
 
     StaticVector<StaticVector<Time, TIME_COUNT>, TIME_COUNT> alternatingPatternsGroup;
     int numberOfAlternatingPatterns = 0;
@@ -339,7 +329,6 @@ void ExtractAlternatingPeriods(StaticVector<Time, TIME_COUNT> busTimes, bool vis
 
                 if (nextPeriodPrediction == busTimes[k]) { // If there is equality in pattern add it to pattern
                     foundPattern.PushBack(busTimes[k]);
-                    //std::cout << "Found period is " << busPeriod << " and pushed " << busTimes[k] << std::endl;
                     periodCount++;
                 }
             }
@@ -349,8 +338,7 @@ void ExtractAlternatingPeriods(StaticVector<Time, TIME_COUNT> busTimes, bool vis
 
             FindAlternatingPeriod(busTimes, foundPattern, foundAlternatingPattern);
                 
-            if (foundAlternatingPattern.GetSize() > 0) {
-
+            if (foundAlternatingPattern.GetSize() > 0) { // If alternating pattern is found it checks the time stamps in the tempVisited array
                 for (int j = 0; j < foundAlternatingPattern.GetSize(); ++j) {
                     for (int k = 0; k < busTimes.GetSize(); ++k) {
                         if (busTimes[k] == foundAlternatingPattern[j]) {
@@ -360,18 +348,12 @@ void ExtractAlternatingPeriods(StaticVector<Time, TIME_COUNT> busTimes, bool vis
                     }
                 }
 
-                // std::cout << "Found alternating pattern is " << foundAlternatingPattern;
                 maxAlternatingPattern = foundAlternatingPattern;
                 alternatingPatternsGroup[numberOfAlternatingPatterns] = foundAlternatingPattern;
                 numberOfAlternatingPatterns++;
             }
-            //else
-                //std::cout << "No alternating pattern in this one " << std::endl;
         
         }
-        // alternating patternda bulduğunu visited yap
-        //std::cout << "Last found alternating pattern" << std::endl;
-        //std::cout << maxAlternatingPattern;
 
         for (int j = 0; j < maxAlternatingPattern.GetSize(); ++j) {
             for (int k = 0; k < busTimes.GetSize(); ++k) {
@@ -384,46 +366,25 @@ void ExtractAlternatingPeriods(StaticVector<Time, TIME_COUNT> busTimes, bool vis
         }
     }
 
+    // Prints out the found alternating periods first
 
-    std::cout << "All GROUPS " << std::endl;
+    std::cout << "ALTERNATING PERIODS:" << std::endl;
 
     for (int j = 0; j < numberOfAlternatingPatterns; j++) {
 
-        std::cout << "Group " << j << "period " << alternatingPatternsGroup[j][1] - alternatingPatternsGroup[j][0] << " and " << alternatingPatternsGroup[j][2] - alternatingPatternsGroup[j][1] << std::endl;
+        std::cout << "Period is: (" << alternatingPatternsGroup[j][1] - alternatingPatternsGroup[j][0] << "," << alternatingPatternsGroup[j][2] - alternatingPatternsGroup[j][1] << ") " << std::endl;
         std::cout << alternatingPatternsGroup[j] << std::endl;
 
     }
 
+    std::cout << "-----------------------------------------------" << std::endl;
+
 
 }
 
-int main() {
+void ExtractStablePeriods(StaticVector<Time, TIME_COUNT>& busTimes, bool visited[TIME_COUNT]) {
 
-    StaticVector<Time, TIME_COUNT> busTimes;
-    bool visited[TIME_COUNT] = { false };
-
-
-    srand(time(NULL));
-
-    Time startTime(10, 0);
-    Time endTime(11, 0);
-
-    CreateBusPeriod(busTimes, 3, startTime, endTime);
-
-    busTimes.Sort(CompareTime);
-
-    std::cout << busTimes << std::endl;
-
-    std::cout << "PERIODS ARE CREATED" << std::endl;
-
-    std::cout << "TRYING TO FIND THE SAME PERIODS" << std::endl;
-
-    
-    //readInput(busTimes);
-
-    ExtractAlternatingPeriods(busTimes, visited);
-
-    std::cout << "Start doing the stable periods" << std::endl;
+    std::cout << "STABLE PERIODS: " << std::endl;
 
     for (int i = 0; i < busTimes.GetSize(); ++i) {
 
@@ -440,8 +401,8 @@ int main() {
                 continue;
 
             int busPeriod = busTimes[j] - busTimes[i]; // Found a value for bus period to try.
-            
-            if(busPeriod == 0)
+
+            if (busPeriod == 0)
                 continue;
 
             int periodCount = 1; // This was the possible first period 
@@ -474,7 +435,7 @@ int main() {
 
         for (int k = 0; k < maximumPattern.GetSize(); ++k) {
             for (int l = 0; l < busTimes.GetSize(); ++l) {
-                
+
                 if (patternSize == maximumPattern.GetSize())
                     break;
 
@@ -486,9 +447,40 @@ int main() {
             }
         }
 
-        if(maximumPattern.GetSize() > 0)
-            std::cout << "Period is:" << maximumPattern[1] - maximumPattern[0] << " Found pattern is " << maximumPattern << std::endl;
+        if (maximumPattern.GetSize() > 0)
+            std::cout << "Period is: " << maximumPattern[1] - maximumPattern[0] << "\nFound pattern is " << maximumPattern << std::endl;
     }
+
+
+    std::cout << "-----------------------------------------------" << std::endl;
+}
+
+
+int main() {
+
+    StaticVector<Time, TIME_COUNT> busTimes;
+    bool visited[TIME_COUNT] = { false };
+
+
+    srand(time(NULL));
+
+    Time startTime(10, 0);
+    Time endTime(11, 0);
+
+    CreateBusPeriod(busTimes, 3, startTime, endTime);
+
+    busTimes.Sort(CompareTime);
+
+    std::cout << "ALL THE BUS TIMES ARE CREATED RANDOMLY" << std::endl;
+
+    std::cout << busTimes << std::endl;
+    std::cout << "-------------------------------------------" << std::endl;
+
+    
+    //readInput(busTimes);
+
+    ExtractAlternatingPeriods(busTimes, visited);
+    ExtractStablePeriods(busTimes, visited);
     
     return 0;
 }
